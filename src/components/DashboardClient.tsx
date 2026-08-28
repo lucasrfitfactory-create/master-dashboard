@@ -87,7 +87,10 @@ export function DashboardClient({ initial }: { initial: { payload: DashboardPayl
           />
         ))}
         <div className="pt-1 mt-1 border-t border-bg-border">
-          <BusinessRevenueCard business={buildTotalRevenue(payload.businesses)} calendarProgressPct={payload.calendarProgressPct} />
+          <BusinessRevenueCard
+            business={buildTotalRevenue(payload.businesses)}
+            calendarProgressPct={payload.calendarProgressPct}
+          />
         </div>
       </main>
     </div>
