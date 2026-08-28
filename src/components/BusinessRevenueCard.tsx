@@ -23,22 +23,12 @@ export function BusinessRevenueCard({
 
   return (
     <div className={`rounded-2xl border ${colors.border} bg-bg-card p-4 md:p-5 flex flex-row items-center gap-4 md:gap-6`}>
-      <div className="flex items-center justify-center w-14 sm:w-28 md:w-40 h-12 md:h-20 shrink-0">
+      <div className="relative flex items-center justify-center w-14 sm:w-28 md:w-40 h-12 md:h-20 shrink-0">
         {business.logoKind === "image" ? (
-          // The source Fit Factory logo file has heavy transparent padding
-          // baked in around the mark, so sizing the image directly to the
-          // box renders the mark far smaller than the box. Render it ~3.5x
-          // the box size and clip the overflow (via overflow-hidden on this
-          // box only) to crop the padding away instead.
-          <div className="w-full h-full overflow-hidden flex items-center justify-center">
-            <Image
-              src={business.logoSrc}
-              alt={business.logoAlt}
-              width={160}
-              height={80}
-              className="h-[350%] w-auto object-contain shrink-0"
-            />
-          </div>
+          // Logo files in /public/logos are pre-cropped to their visible
+          // content (see the crop step noted in businesses.ts) — plain
+          // object-contain fits each one's real aspect ratio into the box.
+          <Image src={business.logoSrc} alt={business.logoAlt} fill sizes="160px" className="object-contain" />
         ) : (
           <span className={`text-[10px] sm:text-lg md:text-2xl font-black uppercase text-center leading-tight break-words ${business.accent}`}>
             {business.shortName}
