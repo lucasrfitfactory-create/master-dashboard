@@ -74,6 +74,7 @@ export function BusinessRevenueCard({
               <span className="text-slate-300 font-semibold">{pct !== null ? `${pct.toFixed(1)}% achieved` : "—"}</span>
               <span className="text-slate-400">{calendarProgressPct.toFixed(1)}% of month elapsed</span>
             </div>
+            {business.warning && <p className="text-xs text-slate-500">{business.warning}</p>}
           </div>
         ) : (
           <p className="text-sm text-slate-500">{business.warning || "Waiting on spreadsheet access."}</p>

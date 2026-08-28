@@ -1,9 +1,41 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { DashboardPayload } from "@/types/dashboard";
+import { BusinessRevenue, DashboardPayload } from "@/types/dashboard";
 import { Header } from "./Header";
 import { BusinessRevenueCard } from "./BusinessRevenueCard";
+
+// Sums only businesses that are actually connected — a disconnected
+// business has no real number to add, and silently treating it as $0
+// would understate the total without any indication why.
+function buildTotalRevenue(businesses: BusinessRevenue[]): BusinessRevenue {
+  const included = businesses.filter((b) => b.connected && b.revenueMTD !== null && b.revenueGoal !== null);
+  const excluded = businesses.filter((b) => !included.includes(b));
+
+  const revenueMTD = included.reduce((sum, b) => sum + (b.revenueMTD ?? 0), 0);
+  const revenueGoal = included.reduce((sum, b) => sum + (b.revenueGoal ?? 0), 0);
+
+  return {
+    id: "total",
+    name: "All Businesses",
+    shortName: "Total",
+    logoSrc: "",
+    logoAlt: "",
+    logoKind: "wordmark",
+    accent: "text-amber-300",
+    href: null,
+    connected: included.length > 0,
+    revenueMTD: included.length > 0 ? revenueMTD : null,
+    revenueGoal: included.length > 0 ? revenueGoal : null,
+    resolvedTab: null,
+    warning:
+      excluded.length > 0
+        ? `Excludes ${excluded.map((b) => b.shortName).join(", ")} — not connected yet.`
+        : included.length === 0
+        ? "Waiting on spreadsheet access."
+        : null,
+  };
+}
 
 const AUTO_REFRESH_INTERVAL_MS = 15000;
 
@@ -48,6 +80,9 @@ export function DashboardClient({ initial }: { initial: { payload: DashboardPayl
         {payload.businesses.map((business) => (
           <BusinessRevenueCard key={business.id} business={business} calendarProgressPct={payload.calendarProgressPct} />
         ))}
+        <div className="pt-1 mt-1 border-t border-bg-border">
+          <BusinessRevenueCard business={buildTotalRevenue(payload.businesses)} calendarProgressPct={payload.calendarProgressPct} />
+        </div>
       </main>
     </div>
   );
