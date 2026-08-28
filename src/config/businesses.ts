@@ -21,6 +21,7 @@ export type BusinessConfig = {
   tabOverrideEnv?: string; // optional: force a specific tab name instead of auto month resolution
   tabPrefix?: string; // e.g. "Daily " for a workbook that names tabs "Daily Aug"
   tabCase?: "upper" | "title"; // "upper" -> "AUG" (default), "title" -> "Aug"
+  tabYearSuffix?: "YY"; // appends " " + 2-digit year, e.g. "Daily AUG 26"
 };
 
 export const BUSINESSES: BusinessConfig[] = [
@@ -57,8 +58,12 @@ export const BUSINESSES: BusinessConfig[] = [
     logoAlt: "Refined Reformer",
     accent: "text-rose-300",
     spreadsheetIdEnv: "GOOGLE_SHEETS_SPREADSHEET_ID_REFINED_REFORMER",
-    goalCell: "H3",
-    revenueCell: "G47",
+    goalCell: "L3",
+    revenueCell: "K47",
+    // This workbook names its monthly tabs "Daily AUG 26" — prefix + upper
+    // month + 2-digit year, different from both other conventions.
+    tabPrefix: "Daily ",
+    tabYearSuffix: "YY",
   },
   {
     id: "nrg-haus",

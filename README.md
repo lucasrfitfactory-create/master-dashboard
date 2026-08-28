@@ -4,16 +4,16 @@ A single-screen dashboard showing **Revenue MTD** for every Fit Factory Fitness 
 
 ## Businesses
 
-| Business | Spreadsheet | Goal cell | Revenue MTD cell |
-|---|---|---|---|
-| Fit Factory Downtown | `GOOGLE_SHEETS_SPREADSHEET_ID_FITFACTORY` | `I3` | `H47` |
-| Fit Factory Midtown | `GOOGLE_SHEETS_SPREADSHEET_ID_FITFACTORY` | `R3` | `H83` |
-| Refined Reformer | `GOOGLE_SHEETS_SPREADSHEET_ID_REFINED_REFORMER` | `H3` | `G47` |
-| NRG Haus | `GOOGLE_SHEETS_SPREADSHEET_ID_NRG_HAUS` | `I3` | `H46` |
+| Business | Spreadsheet | Goal cell | Revenue MTD cell | Tab convention |
+|---|---|---|---|---|
+| Fit Factory Downtown | `GOOGLE_SHEETS_SPREADSHEET_ID_FITFACTORY` | `I3` | `H47` | `AUG` |
+| Fit Factory Midtown | `GOOGLE_SHEETS_SPREADSHEET_ID_FITFACTORY` | `R3` | `H83` | `AUG` |
+| Refined Reformer | `GOOGLE_SHEETS_SPREADSHEET_ID_REFINED_REFORMER` | `L3` | `K47` | `Daily AUG 26` |
+| NRG Haus | `GOOGLE_SHEETS_SPREADSHEET_ID_NRG_HAUS` | `I3` | `H46` | `Daily Aug` |
 
-This mapping lives in [`src/config/businesses.ts`](src/config/businesses.ts) — add a business or change a cell reference there, no other code changes needed. A business with no spreadsheet ID or cell mapping renders as a "not connected yet" card instead of erroring, so the dashboard stays usable while NRG Haus is being wired up.
+This mapping lives in [`src/config/businesses.ts`](src/config/businesses.ts) — add a business or change a cell reference there, no other code changes needed. A business with no spreadsheet ID or cell mapping renders as a "not connected yet" card instead of erroring.
 
-Each business's monthly tab is auto-resolved from the current date via `src/lib/googleSheets/tabResolver.ts` — no hardcoded month name, so nothing needs redeploying at month rollover. Fit Factory and Refined Reformer use the `AUG` convention; NRG Haus's workbook names tabs `Daily Aug` instead, handled via the `tabPrefix`/`tabCase` fields on its entry in `src/config/businesses.ts` (add the same fields for any future business with a different tab-naming convention).
+Each business's monthly tab is auto-resolved from the current date via `src/lib/googleSheets/tabResolver.ts` — no hardcoded month name, so nothing needs redeploying at month rollover. Three different naming conventions are in play across the four workbooks (see table above), handled per-business via the `tabPrefix` / `tabCase` / `tabYearSuffix` fields on each entry in `src/config/businesses.ts` — add the same fields for any future business with yet another convention.
 
 ## Local setup
 

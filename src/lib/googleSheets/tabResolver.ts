@@ -65,4 +65,10 @@ export function titleCaseMonth(abbr: string): string {
   return abbr.charAt(0) + abbr.slice(1).toLowerCase();
 }
 
+// 2026 -> "26" — for workbooks whose tab names include a 2-digit year, e.g.
+// Refined Reformer's "Daily AUG 26".
+export function twoDigitYear(year: number): string {
+  return String(year).slice(-2);
+}
+
 export { MONTH_ABBR };
