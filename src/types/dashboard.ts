@@ -16,9 +16,16 @@ export type BusinessRevenue = {
   warning: string | null;
 };
 
+export type SocialStats = {
+  instagramFollowers: string;
+  googleReviews: number;
+};
+
 export type DashboardPayload = {
   generatedAt: string;
   calendarProgressPct: number;
   monthLabel: string;
   businesses: BusinessRevenue[];
+  socialStats: Record<string, SocialStats | undefined>;
+  socialStatsUpdatedAt: string | null;
 };

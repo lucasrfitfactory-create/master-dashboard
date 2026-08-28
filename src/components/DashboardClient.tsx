@@ -78,7 +78,13 @@ export function DashboardClient({ initial }: { initial: { payload: DashboardPayl
 
       <main className="flex-1 p-4 md:p-6 flex flex-col gap-3 md:gap-4 w-full">
         {payload.businesses.map((business) => (
-          <BusinessRevenueCard key={business.id} business={business} calendarProgressPct={payload.calendarProgressPct} />
+          <BusinessRevenueCard
+            key={business.id}
+            business={business}
+            calendarProgressPct={payload.calendarProgressPct}
+            socialStats={payload.socialStats[business.id]}
+            socialStatsUpdatedAt={payload.socialStatsUpdatedAt}
+          />
         ))}
         <div className="pt-1 mt-1 border-t border-bg-border">
           <BusinessRevenueCard business={buildTotalRevenue(payload.businesses)} calendarProgressPct={payload.calendarProgressPct} />

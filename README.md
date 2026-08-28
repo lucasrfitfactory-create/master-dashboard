@@ -15,6 +15,12 @@ This mapping lives in [`src/config/businesses.ts`](src/config/businesses.ts) —
 
 Each business's monthly tab is auto-resolved from the current date via `src/lib/googleSheets/tabResolver.ts` — no hardcoded month name, so nothing needs redeploying at month rollover. Three different naming conventions are in play across the four workbooks (see table above), handled per-business via the `tabPrefix` / `tabCase` / `tabYearSuffix` fields on each entry in `src/config/businesses.ts` — add the same fields for any future business with yet another convention.
 
+## Instagram followers & Google reviews
+
+Each card's title line shows Instagram follower count and Google review count, sourced from [`src/config/socialStats.json`](src/config/socialStats.json) — **not** fetched live on every page load. Neither Instagram nor Google offers a simple free live API for this (Instagram's official API needs a per-account access token that expires every ~60 days; scraping on every request would be fragile and against both platforms' Terms of Service). Instead, this file is a plain data snapshot with a `generatedAt` timestamp, and the card's title has a hover tooltip noting it isn't live. Hovering the business name shows exactly when it was last checked.
+
+To refresh it: revisit each business's Instagram profile and Google review count (search `"<business> reviews"`, read the review count off the local business panel) and update the corresponding entry, then commit. There's no automated updater wired up yet — if a recurring daily check is wanted, that would need a scheduled job (e.g. Claude Code's scheduler, or a cron-triggered script) that re-checks each source and pushes an updated `socialStats.json`.
+
 ## Local setup
 
 ```bash

@@ -3,15 +3,19 @@
 import Image from "next/image";
 import { fmtCurrency, STATUS_COLORS } from "@/lib/format";
 import { computePaceStatus, badgeTextForPaceStatus } from "@/lib/calculations/status";
-import { BusinessRevenue } from "@/types/dashboard";
+import { BusinessRevenue, SocialStats } from "@/types/dashboard";
 import { ProgressBar } from "./ProgressBar";
 
 export function BusinessRevenueCard({
   business,
   calendarProgressPct,
+  socialStats,
+  socialStatsUpdatedAt,
 }: {
   business: BusinessRevenue;
   calendarProgressPct: number;
+  socialStats?: SocialStats;
+  socialStatsUpdatedAt?: string | null;
 }) {
   const pct =
     business.revenueMTD !== null && business.revenueGoal !== null && business.revenueGoal > 0
@@ -23,6 +27,15 @@ export function BusinessRevenueCard({
 
   const CardTag = business.href ? "a" : "div";
   const linkProps = business.href ? { href: business.href, target: "_blank", rel: "noopener noreferrer" } : {};
+
+  const reviewsFmt = socialStats ? socialStats.googleReviews.toLocaleString("en-CA") : null;
+  const titleFull = socialStats
+    ? `${business.name} — ${socialStats.instagramFollowers} Instagram Followers — ${reviewsFmt} Google Reviews`
+    : business.name;
+  const titleMobile = socialStats ? `${business.shortName} — ${socialStats.instagramFollowers} IG — ${reviewsFmt} reviews` : business.shortName;
+  const statsAsOf = socialStats && socialStatsUpdatedAt
+    ? `Instagram/Google stats as of ${new Date(socialStatsUpdatedAt).toLocaleDateString("en-CA", { month: "short", day: "numeric" })} — not live.`
+    : undefined;
 
   return (
     <CardTag
@@ -47,9 +60,9 @@ export function BusinessRevenueCard({
       <div className="flex-1 flex flex-col gap-2.5 min-w-0">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-1.5 min-w-0">
-            <h2 className="text-slate-300 text-sm md:text-lg font-bold uppercase tracking-wide truncate">
-              <span className="md:hidden">Revenue MTD — {business.shortName}</span>
-              <span className="hidden md:inline">Revenue MTD — {business.name}</span>
+            <h2 className="text-slate-300 text-sm md:text-lg font-bold uppercase tracking-wide truncate" title={statsAsOf}>
+              <span className="md:hidden">{titleMobile}</span>
+              <span className="hidden md:inline">{titleFull}</span>
             </h2>
             {business.href && <span className="text-slate-500 shrink-0">↗</span>}
           </div>

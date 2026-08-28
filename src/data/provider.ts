@@ -2,7 +2,8 @@ import { BUSINESSES, BusinessConfig } from "@/config/businesses";
 import { batchReadValues, listTabNames } from "@/lib/googleSheets/client";
 import { currentMonthTabName, resolveTab, titleCaseMonth, twoDigitYear } from "@/lib/googleSheets/tabResolver";
 import { parseCurrency } from "@/lib/spreadsheetParser/valueParsing";
-import { BusinessRevenue, DashboardPayload } from "@/types/dashboard";
+import { BusinessRevenue, DashboardPayload, SocialStats } from "@/types/dashboard";
+import socialStatsData from "@/config/socialStats.json";
 
 const TIMEZONE = process.env.BUSINESS_TIMEZONE || "America/Toronto";
 
@@ -136,5 +137,7 @@ export async function fetchDashboard(now: Date): Promise<DashboardPayload> {
     calendarProgressPct: calendarProgressPct(now, TIMEZONE),
     monthLabel: monthLabel(now, TIMEZONE),
     businesses,
+    socialStats: socialStatsData.stats as Record<string, SocialStats | undefined>,
+    socialStatsUpdatedAt: socialStatsData.generatedAt,
   };
 }
