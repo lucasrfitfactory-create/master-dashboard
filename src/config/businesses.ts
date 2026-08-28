@@ -15,6 +15,7 @@ export type BusinessConfig = {
   logoSrc: string;
   logoAlt: string;
   accent: string; // tailwind text color class for the wordmark placeholder
+  href?: string; // optional: makes the card a link to that business's own detailed dashboard
   spreadsheetIdEnv: string;
   goalCell: string | null; // e.g. "I3" — left cell of a merged goal range
   revenueCell: string | null; // e.g. "H47"
@@ -33,6 +34,7 @@ export const BUSINESSES: BusinessConfig[] = [
     logoSrc: "/logos/fit-factory.png",
     logoAlt: "Fit Factory",
     accent: "text-white",
+    href: "https://fit-factory-dashboard.vercel.app/",
     spreadsheetIdEnv: "GOOGLE_SHEETS_SPREADSHEET_ID_FITFACTORY",
     goalCell: "I3",
     revenueCell: "H47",

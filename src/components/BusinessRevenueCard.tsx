@@ -21,8 +21,16 @@ export function BusinessRevenueCard({
   const colors = STATUS_COLORS[status] ?? STATUS_COLORS.unavailable;
   const badgeText = business.connected ? badgeTextForPaceStatus(status, pct) : "Not connected";
 
+  const CardTag = business.href ? "a" : "div";
+  const linkProps = business.href ? { href: business.href, target: "_blank", rel: "noopener noreferrer" } : {};
+
   return (
-    <div className={`rounded-2xl border ${colors.border} bg-bg-card p-4 md:p-5 flex flex-row items-center gap-4 md:gap-6`}>
+    <CardTag
+      {...linkProps}
+      className={`rounded-2xl border ${colors.border} bg-bg-card p-4 md:p-5 flex flex-row items-center gap-4 md:gap-6 ${
+        business.href ? "transition-colors hover:bg-white/5 cursor-pointer" : ""
+      }`}
+    >
       <div className="relative flex items-center justify-center w-14 sm:w-28 md:w-40 h-12 md:h-20 shrink-0">
         {business.logoKind === "image" ? (
           // Logo files in /public/logos are pre-cropped to their visible
@@ -38,10 +46,13 @@ export function BusinessRevenueCard({
 
       <div className="flex-1 flex flex-col gap-2.5 min-w-0">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <h2 className="text-slate-300 text-sm md:text-lg font-bold uppercase tracking-wide truncate">
-            <span className="md:hidden">Revenue MTD — {business.shortName}</span>
-            <span className="hidden md:inline">Revenue MTD — {business.name}</span>
-          </h2>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <h2 className="text-slate-300 text-sm md:text-lg font-bold uppercase tracking-wide truncate">
+              <span className="md:hidden">Revenue MTD — {business.shortName}</span>
+              <span className="hidden md:inline">Revenue MTD — {business.name}</span>
+            </h2>
+            {business.href && <span className="text-slate-500 shrink-0">↗</span>}
+          </div>
           <span className={`shrink-0 text-xs md:text-sm font-bold px-3 py-1 rounded whitespace-nowrap ${colors.bg} ${colors.text}`}>
             {badgeText}
           </span>
@@ -68,6 +79,6 @@ export function BusinessRevenueCard({
           <p className="text-sm text-slate-500">{business.warning || "Waiting on spreadsheet access."}</p>
         )}
       </div>
-    </div>
+    </CardTag>
   );
 }

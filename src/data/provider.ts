@@ -35,6 +35,7 @@ async function fetchLiveBusinessRevenue(business: BusinessConfig, now: Date): Pr
     logoAlt: business.logoAlt,
     logoKind: business.logoKind,
     accent: business.accent,
+    href: business.href ?? null,
   };
 
   const spreadsheetId = process.env[business.spreadsheetIdEnv];
@@ -114,6 +115,7 @@ function mockBusinessRevenue(business: BusinessConfig): BusinessRevenue {
     logoAlt: business.logoAlt,
     logoKind: business.logoKind,
     accent: business.accent,
+    href: business.href ?? null,
     connected,
     revenueMTD: connected ? mock.revenueMTD : null,
     revenueGoal: connected ? mock.revenueGoal : null,

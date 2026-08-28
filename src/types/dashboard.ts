@@ -8,6 +8,7 @@ export type BusinessRevenue = {
   logoAlt: string;
   logoKind: "image" | "wordmark";
   accent: string;
+  href: string | null;
   connected: boolean;
   revenueMTD: number | null;
   revenueGoal: number | null;
