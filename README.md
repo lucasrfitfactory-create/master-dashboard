@@ -13,7 +13,7 @@ A single-screen dashboard showing **Revenue MTD** for every Fit Factory Fitness 
 
 This mapping lives in [`src/config/businesses.ts`](src/config/businesses.ts) — add a business or change a cell reference there, no other code changes needed. A business with no spreadsheet ID or cell mapping renders as a "not connected yet" card instead of erroring, so the dashboard stays usable while NRG Haus is being wired up.
 
-Each business's monthly tab is auto-resolved from the current date (`JAN`…`DEC`, same convention as the source workbooks) via `src/lib/googleSheets/tabResolver.ts` — no hardcoded month name, so nothing needs redeploying at month rollover.
+Each business's monthly tab is auto-resolved from the current date via `src/lib/googleSheets/tabResolver.ts` — no hardcoded month name, so nothing needs redeploying at month rollover. Fit Factory and Refined Reformer use the `AUG` convention; NRG Haus's workbook names tabs `Daily Aug` instead, handled via the `tabPrefix`/`tabCase` fields on its entry in `src/config/businesses.ts` (add the same fields for any future business with a different tab-naming convention).
 
 ## Local setup
 

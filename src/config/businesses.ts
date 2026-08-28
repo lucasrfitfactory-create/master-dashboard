@@ -19,6 +19,8 @@ export type BusinessConfig = {
   goalCell: string | null; // e.g. "I3" — left cell of a merged goal range
   revenueCell: string | null; // e.g. "H47"
   tabOverrideEnv?: string; // optional: force a specific tab name instead of auto month resolution
+  tabPrefix?: string; // e.g. "Daily " for a workbook that names tabs "Daily Aug"
+  tabCase?: "upper" | "title"; // "upper" -> "AUG" (default), "title" -> "Aug"
 };
 
 export const BUSINESSES: BusinessConfig[] = [
@@ -39,8 +41,8 @@ export const BUSINESSES: BusinessConfig[] = [
     name: "Fit Factory Midtown",
     shortName: "Midtown",
     logoKind: "image",
-    logoSrc: "/logos/fit-factory.png",
-    logoAlt: "Fit Factory",
+    logoSrc: "/logos/fit-factory-midtown.png",
+    logoAlt: "Fit Factory Midtown",
     accent: "text-white",
     spreadsheetIdEnv: "GOOGLE_SHEETS_SPREADSHEET_ID_FITFACTORY",
     goalCell: "R3",
@@ -67,10 +69,11 @@ export const BUSINESSES: BusinessConfig[] = [
     logoAlt: "NRG Haus",
     accent: "text-sky-300",
     spreadsheetIdEnv: "GOOGLE_SHEETS_SPREADSHEET_ID_NRG_HAUS",
-    // Cell mapping confirmed; spreadsheet ID still pending — set
-    // GOOGLE_SHEETS_SPREADSHEET_ID_NRG_HAUS once the sheet is shared with
-    // the service account.
     goalCell: "I3",
     revenueCell: "H46",
+    // This workbook names its monthly tabs "Daily Aug", "Daily Sep", etc. —
+    // different convention from the Fit Factory / Refined Reformer "AUG".
+    tabPrefix: "Daily ",
+    tabCase: "title",
   },
 ];

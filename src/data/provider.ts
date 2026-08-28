@@ -1,6 +1,6 @@
 import { BUSINESSES, BusinessConfig } from "@/config/businesses";
 import { batchReadValues, listTabNames } from "@/lib/googleSheets/client";
-import { currentMonthTabName, resolveTab } from "@/lib/googleSheets/tabResolver";
+import { currentMonthTabName, resolveTab, titleCaseMonth } from "@/lib/googleSheets/tabResolver";
 import { parseCurrency } from "@/lib/spreadsheetParser/valueParsing";
 import { BusinessRevenue, DashboardPayload } from "@/types/dashboard";
 
@@ -49,9 +49,12 @@ async function fetchLiveBusinessRevenue(business: BusinessConfig, now: Date): Pr
     };
   }
 
+  const monthAbbr = currentMonthTabName(now, TIMEZONE).tab; // e.g. "AUG"
+  const formattedMonth = business.tabCase === "title" ? titleCaseMonth(monthAbbr) : monthAbbr;
+  const defaultTab = `${business.tabPrefix ?? ""}${formattedMonth}`;
   const requestedTab = business.tabOverrideEnv && process.env[business.tabOverrideEnv]
     ? (process.env[business.tabOverrideEnv] as string)
-    : currentMonthTabName(now, TIMEZONE).tab;
+    : defaultTab;
 
   const readCells = async (tab: string) => {
     const [goalRaw, revenueRaw] = await batchReadValues(spreadsheetId, [

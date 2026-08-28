@@ -58,4 +58,11 @@ export function resolveTab(requestedTab: string, availableTabs: string[]): TabRe
   };
 }
 
+// "AUG" -> "Aug" — some workbooks (e.g. NRG Haus's "Daily Aug") use
+// title-cased month abbreviations instead of the all-caps Fit Factory
+// convention.
+export function titleCaseMonth(abbr: string): string {
+  return abbr.charAt(0) + abbr.slice(1).toLowerCase();
+}
+
 export { MONTH_ABBR };

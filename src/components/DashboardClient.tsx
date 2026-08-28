@@ -44,7 +44,7 @@ export function DashboardClient({ initial }: { initial: { payload: DashboardPayl
         </div>
       )}
 
-      <main className="flex-1 p-4 md:p-6 flex flex-col gap-3 md:gap-4 max-w-5xl w-full mx-auto">
+      <main className="flex-1 p-4 md:p-6 flex flex-col gap-3 md:gap-4 w-full">
         {payload.businesses.map((business) => (
           <BusinessRevenueCard key={business.id} business={business} calendarProgressPct={payload.calendarProgressPct} />
         ))}
