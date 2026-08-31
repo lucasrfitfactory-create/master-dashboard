@@ -15,20 +15,12 @@ export function ProgressBar({
   height?: string;
 }) {
   const colors = STATUS_COLORS[status] ?? STATUS_COLORS.unavailable;
-  const clamped = currentPct === null ? 0 : Math.min(currentPct, 130);
-  const barWidth = Math.min(clamped, 100);
-  const overflowWidth = Math.max(clamped - 100, 0);
+  const barWidth = currentPct === null ? 0 : Math.min(currentPct, 100);
 
   return (
     <div className="relative w-full">
       <div className={`relative w-full ${height} rounded-full bg-white/5 border border-white/10 overflow-visible`}>
         <div className={`${height} rounded-full ${colors.dot} transition-all duration-700`} style={{ width: `${barWidth}%` }} />
-        {overflowWidth > 0 && (
-          <div
-            className={`absolute top-0 ${height} rounded-r-full bg-emerald-300`}
-            style={{ left: "100%", width: `${Math.min(overflowWidth, 30)}%` }}
-          />
-        )}
         {expectedPct !== null && expectedPct > 0 && expectedPct <= 100 && (
           <div
             className="absolute top-[-4px] bottom-[-4px] w-[2px] bg-white/70"
