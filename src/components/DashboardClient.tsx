@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { BusinessRevenue, DashboardPayload } from "@/types/dashboard";
+import { monthFullName } from "@/lib/googleSheets/tabResolver";
 import { Header } from "./Header";
 import { BusinessRevenueCard } from "./BusinessRevenueCard";
 
@@ -39,8 +40,9 @@ function buildTotalRevenue(businesses: BusinessRevenue[]): BusinessRevenue {
 
 const AUTO_REFRESH_INTERVAL_MS = 15000;
 
-async function fetchDashboard(): Promise<{ payload: DashboardPayload | null; error: string | null }> {
-  const res = await fetch("/api/dashboard", { cache: "no-store" });
+async function fetchDashboard(month?: string): Promise<{ payload: DashboardPayload | null; error: string | null }> {
+  const url = month ? `/api/dashboard?month=${month}` : "/api/dashboard";
+  const res = await fetch(url, { cache: "no-store" });
   const json = await res.json();
   if (!json.payload) throw new Error(json.error || "Failed to load dashboard data.");
   return json;
@@ -49,6 +51,9 @@ async function fetchDashboard(): Promise<{ payload: DashboardPayload | null; err
 export function DashboardClient({ initial }: { initial: { payload: DashboardPayload; error: string | null } }) {
   const [state, setState] = useState(initial);
 
+  // Live poll always fetches the current month in the background, even
+  // while viewing a historical month — so "Back to Live" is instant rather
+  // than needing a fresh fetch.
   const refresh = useCallback(async () => {
     try {
       const result = await fetchDashboard();
@@ -63,12 +68,67 @@ export function DashboardClient({ initial }: { initial: { payload: DashboardPayl
     return () => clearInterval(t);
   }, [refresh]);
 
-  const { payload, error } = state;
+  // Month selector state. viewMonth === null means "live". Picking a past
+  // month fetches that tab once (historical data doesn't need polling) and
+  // swaps the rendered payload without touching the live poll above.
+  const [viewMonth, setViewMonth] = useState<string | null>(null);
+  const [historicalPayload, setHistoricalPayload] = useState<DashboardPayload | null>(null);
+  const [historicalLoading, setHistoricalLoading] = useState(false);
+  const [historicalError, setHistoricalError] = useState<string | null>(null);
+
+  const { payload: livePayload, error } = state;
+
+  const handleSelectMonth = useCallback(
+    (month: string) => {
+      if (month === livePayload.liveMonth) {
+        setViewMonth(null);
+        return;
+      }
+      setViewMonth(month);
+      setHistoricalLoading(true);
+      setHistoricalError(null);
+      fetchDashboard(month)
+        .then((result) => setHistoricalPayload(result.payload))
+        .catch((err) => setHistoricalError(err instanceof Error ? err.message : "Failed to load month"))
+        .finally(() => setHistoricalLoading(false));
+    },
+    [livePayload.liveMonth]
+  );
+
+  // Only swap to the historical payload once it's actually loaded AND
+  // matches the currently selected month (avoids briefly showing a stale
+  // previous selection while the new one is still loading).
+  const isViewingHistorical = viewMonth !== null && historicalPayload !== null && historicalPayload.selectedMonth === viewMonth;
+  const payload = isViewingHistorical ? historicalPayload! : livePayload;
   const isMock = payload.businesses.some((b) => b.resolvedTab === "MOCK");
 
   return (
     <div className="min-h-screen w-full flex flex-col">
-      <Header monthLabel={payload.monthLabel} generatedAt={payload.generatedAt} isMock={isMock} />
+      <Header
+        generatedAt={payload.generatedAt}
+        isMock={isMock}
+        selectedMonth={viewMonth ?? livePayload.liveMonth}
+        liveMonth={livePayload.liveMonth}
+        year={livePayload.year}
+        onSelectMonth={handleSelectMonth}
+      />
+
+      {viewMonth && (
+        <div className="px-6 py-1 bg-sky-500/10 border-b border-sky-500/30 text-sky-300 text-xs shrink-0 flex items-center gap-3">
+          {historicalLoading ? (
+            <span>Loading {monthFullName(viewMonth)}…</span>
+          ) : historicalError ? (
+            <span className="text-red-300">
+              Failed to load {monthFullName(viewMonth)}: {historicalError} — showing live data below.
+            </span>
+          ) : (
+            <span>Viewing {monthFullName(viewMonth)} — historical, not live.</span>
+          )}
+          <button type="button" onClick={() => setViewMonth(null)} className="underline hover:no-underline">
+            Back to Live
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="px-6 py-1 bg-amber-500/10 border-b border-amber-500/30 text-amber-300 text-xs shrink-0">

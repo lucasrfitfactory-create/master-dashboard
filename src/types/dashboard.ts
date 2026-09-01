@@ -28,4 +28,8 @@ export type DashboardPayload = {
   businesses: BusinessRevenue[];
   socialStats: Record<string, SocialStats | undefined>;
   socialStatsUpdatedAt: string | null;
+  selectedMonth: string; // e.g. "SEP" — the month tab abbreviation being shown
+  liveMonth: string; // the actual current month abbreviation, regardless of what's selected
+  year: number;
+  isHistorical: boolean;
 };

@@ -1,6 +1,6 @@
 import { BUSINESSES, BusinessConfig } from "@/config/businesses";
 import { batchReadValues, listTabNames } from "@/lib/googleSheets/client";
-import { currentMonthTabName, resolveTab, titleCaseMonth, twoDigitYear } from "@/lib/googleSheets/tabResolver";
+import { currentMonthTabName, monthFullName, resolveTab, titleCaseMonth, twoDigitYear } from "@/lib/googleSheets/tabResolver";
 import { parseCurrency } from "@/lib/spreadsheetParser/valueParsing";
 import { BusinessRevenue, DashboardPayload, SocialStats } from "@/types/dashboard";
 import socialStatsData from "@/config/socialStats.json";
@@ -16,10 +16,6 @@ function calendarProgressPct(now: Date, timeZone: string): number {
   return (day / daysInMonth) * 100;
 }
 
-function monthLabel(now: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat("en-US", { timeZone, month: "long", year: "numeric" }).format(now);
-}
-
 const MOCK_REVENUE: Record<string, { revenueMTD: number; revenueGoal: number }> = {
   "ff-downtown": { revenueMTD: 72394, revenueGoal: 90000 },
   "ff-midtown": { revenueMTD: 55064, revenueGoal: 55000 },
@@ -27,7 +23,17 @@ const MOCK_REVENUE: Record<string, { revenueMTD: number; revenueGoal: number }> 
   "nrg-haus": { revenueMTD: 0, revenueGoal: 0 },
 };
 
-async function fetchLiveBusinessRevenue(business: BusinessConfig, now: Date): Promise<BusinessRevenue> {
+// Builds this business's tab name for a given month/year using its own
+// naming convention (tabPrefix/tabCase/tabYearSuffix), the same formula
+// used for the live month — so picking a past month from the selector
+// resolves correctly per-business, not just for the "AUG" convention.
+function tabNameForMonth(business: BusinessConfig, monthAbbr: string, year: number): string {
+  const formattedMonth = business.tabCase === "title" ? titleCaseMonth(monthAbbr) : monthAbbr;
+  const yearSuffix = business.tabYearSuffix === "YY" ? ` ${twoDigitYear(year)}` : "";
+  return `${business.tabPrefix ?? ""}${formattedMonth}${yearSuffix}`;
+}
+
+async function fetchLiveBusinessRevenue(business: BusinessConfig, monthAbbr: string, year: number): Promise<BusinessRevenue> {
   const base = {
     id: business.id,
     name: business.name,
@@ -51,10 +57,7 @@ async function fetchLiveBusinessRevenue(business: BusinessConfig, now: Date): Pr
     };
   }
 
-  const { tab: monthAbbr, year } = currentMonthTabName(now, TIMEZONE); // e.g. "AUG", 2026
-  const formattedMonth = business.tabCase === "title" ? titleCaseMonth(monthAbbr) : monthAbbr;
-  const yearSuffix = business.tabYearSuffix === "YY" ? ` ${twoDigitYear(year)}` : "";
-  const defaultTab = `${business.tabPrefix ?? ""}${formattedMonth}${yearSuffix}`;
+  const defaultTab = tabNameForMonth(business, monthAbbr, year);
   const requestedTab = business.tabOverrideEnv && process.env[business.tabOverrideEnv]
     ? (process.env[business.tabOverrideEnv] as string)
     : defaultTab;
@@ -125,19 +128,31 @@ function mockBusinessRevenue(business: BusinessConfig): BusinessRevenue {
   };
 }
 
-export async function fetchDashboard(now: Date): Promise<DashboardPayload> {
+// overrideMonth: a 3-letter month abbreviation (e.g. "JUL") to view a past
+// month instead of the live current one, from the month selector. A closed
+// past month has nothing left to "pace" against, so calendarProgressPct is
+// forced to 100 — see RevenueHero-equivalent status math in
+// computePaceStatus, which otherwise compares progress to elapsed-time.
+export async function fetchDashboard(now: Date, overrideMonth?: string): Promise<DashboardPayload> {
   const isMock = (process.env.DASHBOARD_DATA_SOURCE || "mock") === "mock";
+  const live = currentMonthTabName(now, TIMEZONE);
+  const monthAbbr = overrideMonth ?? live.tab;
+  const isHistorical = monthAbbr !== live.tab;
 
   const businesses = isMock
     ? BUSINESSES.map(mockBusinessRevenue)
-    : await Promise.all(BUSINESSES.map((b) => fetchLiveBusinessRevenue(b, now)));
+    : await Promise.all(BUSINESSES.map((b) => fetchLiveBusinessRevenue(b, monthAbbr, live.year)));
 
   return {
     generatedAt: now.toISOString(),
-    calendarProgressPct: calendarProgressPct(now, TIMEZONE),
-    monthLabel: monthLabel(now, TIMEZONE),
+    calendarProgressPct: isHistorical ? 100 : calendarProgressPct(now, TIMEZONE),
+    monthLabel: `${monthFullName(monthAbbr)} ${live.year}`,
     businesses,
     socialStats: socialStatsData.stats as Record<string, SocialStats | undefined>,
     socialStatsUpdatedAt: socialStatsData.generatedAt,
+    selectedMonth: monthAbbr,
+    liveMonth: live.tab,
+    year: live.year,
+    isHistorical,
   };
 }

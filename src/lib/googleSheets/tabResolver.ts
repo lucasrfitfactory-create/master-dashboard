@@ -71,4 +71,15 @@ export function twoDigitYear(year: number): string {
   return String(year).slice(-2);
 }
 
+const MONTH_FULL = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+// "AUG" -> "August" — for display labels (month selector, header).
+export function monthFullName(abbr: string): string {
+  const idx = MONTH_ABBR.indexOf(abbr);
+  return idx >= 0 ? MONTH_FULL[idx] : abbr;
+}
+
 export { MONTH_ABBR };
