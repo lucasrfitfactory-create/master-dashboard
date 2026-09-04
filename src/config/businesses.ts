@@ -17,8 +17,15 @@ export type BusinessConfig = {
   accent: string; // tailwind text color class for the wordmark placeholder
   href?: string; // optional: makes the card a link to that business's own detailed dashboard
   spreadsheetIdEnv: string;
-  goalCell: string | null; // e.g. "I3" — left cell of a merged goal range
-  revenueCell: string | null; // e.g. "H47"
+  goalCell: string | null; // e.g. "I3" — left cell of a merged goal range. Fixed near the top of every month's tab, so this is safe to hardcode.
+  // The MTD revenue cell on the TOTALS row, e.g. "H47" — but the TOTALS
+  // row's exact row number shifts with days-in-month (28-31 days), so this
+  // is only a reference anchor for a 31-day month. At read time the app
+  // scans a small window above this row for a "TOTALS" label (see
+  // revenueLabelColumn) and uses whichever row actually has it, falling
+  // back to this exact cell if the label can't be confirmed.
+  revenueCell: string | null;
+  revenueLabelColumn?: string; // column containing the "TOTALS" row label, default "B"
   tabOverrideEnv?: string; // optional: force a specific tab name instead of auto month resolution
   tabPrefix?: string; // e.g. "Daily " for a workbook that names tabs "Daily Aug"
   tabCase?: "upper" | "title"; // "upper" -> "AUG" (default), "title" -> "Aug"

@@ -76,3 +76,20 @@ export async function batchReadValues(
   });
   return (res.data.valueRanges || []).map((vr) => vr.values?.[0]?.[0] as string | undefined);
 }
+
+// Same as batchReadValues, but for single-column vertical ranges (e.g.
+// "B44:B47") — returns every cell in the column, not just the first, so
+// callers can scan a small window of rows (e.g. to find a "TOTALS" label
+// whose exact row shifts with days-in-month).
+export async function batchReadColumnRanges(
+  spreadsheetId: string,
+  ranges: string[]
+): Promise<(string | undefined)[][]> {
+  const sheets = await getClient();
+  const res = await sheets.spreadsheets.values.batchGet({
+    spreadsheetId,
+    ranges,
+    valueRenderOption: "FORMATTED_VALUE",
+  });
+  return (res.data.valueRanges || []).map((vr) => (vr.values || []).map((row) => row?.[0] as string | undefined));
+}
