@@ -4,7 +4,7 @@ A single-screen dashboard showing **Revenue MTD** for every Fit Factory Fitness 
 
 ## Businesses
 
-| Business | Spreadsheet | Goal cell | Revenue MTD cell | Tab convention |
+| Business | Spreadsheet | Goal cell | Revenue MTD anchor | Tab convention |
 |---|---|---|---|---|
 | Fit Factory Downtown | `GOOGLE_SHEETS_SPREADSHEET_ID_FITFACTORY` | `I3` | `H47` | `AUG` |
 | Fit Factory Midtown | `GOOGLE_SHEETS_SPREADSHEET_ID_FITFACTORY` | `R3` | `H83` | `AUG` |
@@ -12,6 +12,8 @@ A single-screen dashboard showing **Revenue MTD** for every Fit Factory Fitness 
 | NRG Haus | `GOOGLE_SHEETS_SPREADSHEET_ID_NRG_HAUS` | `I3` | `H46` | `Daily Aug` |
 
 This mapping lives in [`src/config/businesses.ts`](src/config/businesses.ts) — add a business or change a cell reference there, no other code changes needed. A business with no spreadsheet ID or cell mapping renders as a "not connected yet" card instead of erroring.
+
+**"Revenue MTD anchor" is not a fixed cell** — it's a reference position for a 31-day month (August). The actual `TOTALS` row shifts by 1-3 rows for any 28/29/30-day month, since it always sits right after the last day-row. `src/data/provider.ts` (`readRevenueForTab`) scans the label column (`revenueLabelColumn`, default `B`) in a window above the anchor row for the cell that actually says `TOTALS`, and reads revenue from that row — self-correcting for any month length. It only falls back to the literal anchor cell (with a visible warning) if that label can't be confirmed in a non-31-day month. The goal cell has no such issue — it's fixed near the top of every month's tab regardless of day count.
 
 Each business's monthly tab is auto-resolved from the current date via `src/lib/googleSheets/tabResolver.ts` — no hardcoded month name, so nothing needs redeploying at month rollover. Three different naming conventions are in play across the four workbooks (see table above), handled per-business via the `tabPrefix` / `tabCase` / `tabYearSuffix` fields on each entry in `src/config/businesses.ts` — add the same fields for any future business with yet another convention.
 
